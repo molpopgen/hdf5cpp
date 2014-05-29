@@ -212,9 +212,31 @@ int main( int argc, char ** argv )
       cerr << "Group " << i << " -> " << root.getObjnameByIdx(i) << '\n';
 
       Group subgroup = file.openGroup( root.getObjnameByIdx(i) );
-      for( unsigned i = 0 ; i < subgroup.getNumObjs() ; ++i )
+      for( unsigned j = 0 ; j < subgroup.getNumObjs() ; ++j )
 	{
-	  cerr << '\t' << subgroup.getObjnameByIdx(i) << '\n';
+	  cerr << '\t' << subgroup.getObjnameByIdx(j) << '\n';
+	  DataSet dsj = file.openDataSet( string(root.getObjnameByIdx(i) + "/" + subgroup.getObjnameByIdx(j)).c_str() );
+	  DataSpace dspj(dsj.getSpace());
+
+	  int rank_j = dspj.getSimpleExtentNdims();
+	  hsize_t dims_out[rank_j];
+	  int ndims = dspj.getSimpleExtentDims( dims_out, NULL);
+  
+	  hsize_t offset[1]={0};
+	  vector<unsigned> receiver(dims_out[0]); //allocate memory to receive
+
+	  DataSpace memspace_j(rank_j,dims_out );
+	  dspj.selectHyperslab(H5S_SELECT_SET, dims_out, offset );
+	  //OK, so read it in!
+	  IntType intype = dsj.getIntType();
+	  dsj.read( &receiver[0], intype, memspace_j, dspj );
+	  set<unsigned> temp(receiver.begin(),receiver.end());
+	  for( set<unsigned>::iterator i = temp.begin() ;
+	       i != temp.end() ; ++i )
+	    {
+	      cout << "\t\t" << *i << '\t' << count(receiver.begin(),
+					  receiver.end(),*i) << '\n';
+	    }
 	}
     }
 }
