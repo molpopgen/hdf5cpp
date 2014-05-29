@@ -38,7 +38,7 @@ int main( int argc, char ** argv )
   dim[0]=foo.size();
 
   DSetCreatPropList cparms;
-  hsize_t chunk_dims[1] = {50};
+  hsize_t chunk_dims[1] = {1000}; //This make a BIG difference in final file size AND run time!  If you are appending to a lot of big data sets, this should be BIG
   hsize_t maxdims[1] = {H5S_UNLIMITED}; //ok, this is important!
   cparms.setChunk( 1, chunk_dims );
   cparms.setDeflate( 6 ); //compression level makes a big differences in large files!  Default is 0 = uncompressed.
