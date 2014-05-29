@@ -16,6 +16,42 @@
 using namespace std;
 using namespace H5;
 
+//Can we get data sets?
+herr_t
+file_info2(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
+{
+    hid_t dset;
+    /*
+     * Open the group using its name.
+     */
+    dset = H5Dopen2(loc_id, name, H5P_DEFAULT);
+    /*
+     * Display group name.
+     */
+    cout << "Data set name : " << name << endl;
+    H5Dclose(dset);
+    return 0;
+}
+
+//lifted from http://ftp.hdfgroup.org/HDF5/doc/cpplus_RM/h5group_8cpp-example.html
+herr_t
+file_info(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
+{
+    hid_t group;
+    /*
+     * Open the group using its name.
+     */
+    group = H5Gopen2(loc_id, name, H5P_DEFAULT);
+    /*
+     * Display group name.
+     */
+    cout << "Group name : " << name << endl;
+    herr_t idx = H5Literate(group, H5_INDEX_NAME, H5_ITER_INC, NULL, file_info2, NULL);
+    H5Gclose(group);
+    return 0;
+}
+
+
 int main( int argc, char ** argv )
 {
   H5File file("testAdding.h5",H5F_ACC_TRUNC);
@@ -160,5 +196,11 @@ int main( int argc, char ** argv )
       cout << *i << '\t'
 	   << count(receiver.begin(),receiver.end(),*i) << '\n';
     }
+  file.close();
+
+  //Ok, read the file and print out the names of groups and names of data sets nested w/in groups
+  file.openFile("testAdding.h5",H5F_ACC_RDONLY);
+  herr_t idx = H5Literate(file.getId(), H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, NULL);
+
 }
 
