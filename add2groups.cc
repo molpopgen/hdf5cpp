@@ -202,5 +202,20 @@ int main( int argc, char ** argv )
   //Ok, read the file and print out the names of groups and names of data sets nested w/in groups
   file.openFile("testAdding.h5",H5F_ACC_RDONLY);
   herr_t idx = H5Literate(file.getId(), H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, NULL);
+
+  Group root = file.openGroup("/");
+  cerr << root.getNumObjs() << '\n';
+
+  //Much more "C++" way of doing it...
+  for( unsigned i = 0 ; i < root.getNumObjs() ; ++i )
+    {
+      cerr << "Group " << i << " -> " << root.getObjnameByIdx(i) << '\n';
+
+      Group subgroup = file.openGroup( root.getObjnameByIdx(i) );
+      for( unsigned i = 0 ; i < subgroup.getNumObjs() ; ++i )
+	{
+	  cerr << '\t' << subgroup.getObjnameByIdx(i) << '\n';
+	}
+    }
 }
 
