@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <vector>
 #include <set>
+#include <map>
 
 using namespace std;
 using namespace H5;
@@ -148,7 +149,7 @@ int main( int argc, char ** argv )
   //let's get the group names
   hid_t objlist[file.getObjCount()];
 
-  //Get open data sets
+  //Get open groups
   file.getObjIDs(H5F_OBJ_GROUP,2,&objlist[0]);
 
   //OK, what did that do?
@@ -201,6 +202,5 @@ int main( int argc, char ** argv )
   //Ok, read the file and print out the names of groups and names of data sets nested w/in groups
   file.openFile("testAdding.h5",H5F_ACC_RDONLY);
   herr_t idx = H5Literate(file.getId(), H5_INDEX_NAME, H5_ITER_INC, NULL, file_info, NULL);
-
 }
 
