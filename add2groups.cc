@@ -11,6 +11,8 @@
 #include <sstream>
 #include <cstdlib>
 #include <vector>
+#include <set>
+
 using namespace std;
 using namespace H5;
 
@@ -117,6 +119,46 @@ int main( int argc, char ** argv )
   for( unsigned i = 0 ; i< file.getObjCount() ; ++i )
     {
       cout << objlist[i] << '\n';
+    }
+
+  //The below is taken from the readdata.cpp example provided by the HDF5 group
+
+  //So, the below is "fine" in some sense, but how does one get a list of names of data objects?
+  //In other words, do we need to know our names ahead of time?  That seems unlikely, but cannot find documentation...
+  delete dataset;
+  delete dataspace;
+  delete memspace;
+
+  dataset = new DataSet( file.openDataSet("Group0/perms") );
+
+  IntType intype = dataset->getIntType();
+
+  dataspace = new DataSpace( dataset->getSpace() );
+  
+  int rank = dataspace->getSimpleExtentNdims();
+  hsize_t dims_out[rank];
+  int ndims = dataspace->getSimpleExtentDims( dims_out, NULL);
+  
+  cout << "rank " << rank << ", dimensions "
+       << (unsigned long)(dims_out[0]) << '\n';  
+
+  offset[0]=0;
+  vector<unsigned> receiver(dims_out[0]); //allocate memory to receive
+
+  dataspace->selectHyperslab(H5S_SELECT_SET, dims_out, offset );
+
+  memspace = new DataSpace( rank, dims_out );
+
+  memspace->selectHyperslab(H5S_SELECT_SET, dims_out, offset );
+
+  dataset->read( &receiver[0], intype, *memspace, *dataspace );
+
+  std::set<unsigned> what_did_we_get(receiver.begin(),receiver.end());
+  for( set<unsigned>::const_iterator i = what_did_we_get.begin() ; 
+       i != what_did_we_get.end() ; ++i )
+    {
+      cout << *i << '\t'
+	   << count(receiver.begin(),receiver.end(),*i) << '\n';
     }
 }
 
