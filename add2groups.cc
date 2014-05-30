@@ -249,8 +249,16 @@ int main( int argc, char ** argv )
 
   hsize_t dim_init[2] = {1,10};
   vector<double> vd(dim_init[1],0.);
-  hsize_t maxdims_init[2] = {H5S_UNLIMITED,H5S_UNLIMITED}; //ok, this is important!
-  hsize_t chunk_dims2[2] = {1000,1000};
+  /*
+    Knowing that 1 dimension is fixed can 
+    really speed things up.
+  */
+  hsize_t maxdims_init[2] = {H5S_UNLIMITED,10}; //ok, this is important!
+  /*
+    If the maxdims is fixed, chunk dims should be, too, o/w
+    you get errors on trying to create data sets
+   */
+  hsize_t chunk_dims2[2] = {1000,10};
   cparms.setChunk( 2, chunk_dims2 );
   DataSpace dspace(2,dim_init,maxdims_init);
   DataSet dset(file.createDataSet("Group4/perms",
