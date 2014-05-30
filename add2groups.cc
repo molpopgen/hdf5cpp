@@ -265,7 +265,6 @@ int main( int argc, char ** argv )
   for( unsigned i = 1 ; i <= 10 ; ++i )
     {
       hsize_t dim_i[2] = {i,10};
-      hsize_t dim_im1[2] = {i-1,10};
       hsize_t offset_i[2] = {i-1,0};
       vd = vector<double>(dim_init[1],double(i));
 
