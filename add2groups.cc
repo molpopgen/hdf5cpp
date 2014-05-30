@@ -239,5 +239,52 @@ int main( int argc, char ** argv )
 	    }
 	}
     }
+  file.close();
+
+  file.openFile("testAdding.h5",H5F_ACC_RDWR);
+
+  //Write a 2D data set by repeated resizing
+
+  //The writing part below does not work...
+
+  hsize_t dim_init[2] = {1,10};
+  vector<double> vd(dim_init[1],0.);
+  hsize_t maxdims_init[2] = {H5S_UNLIMITED,H5S_UNLIMITED}; //ok, this is important!
+  hsize_t chunk_dims2[2] = {1000,1000};
+  cparms.setChunk( 2, chunk_dims2 );
+  DataSpace dspace(2,dim_init,maxdims_init);
+  DataSet dset(file.createDataSet("Group4/perms",
+				  PredType::NATIVE_DOUBLE,
+				  dspace,
+				  cparms));
+
+  dset.write( &*vd.begin(),	
+	      PredType::NATIVE_DOUBLE);
+
+
+  for( unsigned i = 1 ; i < 2 ; ++i )
+    {
+      hsize_t dim_i[2] = {i+1,10};
+      hsize_t dim_im1[2] = {i,10};
+      hsize_t offset_i[2] = {i,0};
+      vd = vector<double>(dim_init[1],double(i));
+
+      dset.extend( dim_i );
+      DataSpace fspace = dset.getSpace();
+      DataSpace mspace( 2, dim_init );
+      cerr << dim_i[0] << ' ' << dim_i[1] << ' ' << offset_i[0] << ' ' << offset_i[1] << ' ' << fspace.getSimpleExtentNdims() << '\n';
+      cerr << vd.size() << '\n';
+      mspace.selectHyperslab( H5S_SELECT_SET, dim_i , dim_init );
+
+      //dset.read( &vd[0], PredType::NATIVE_DOUBLE, memspace, dspace );
+      //dataset->write( &*foo2.begin(),PredType::NATIVE_INT,*memspace,*filespace);
+      
+      
+      dset.write(&*vd.begin(),
+		 PredType::NATIVE_DOUBLE,
+		 mspace,fspace);
+      
+    }
+    
 }
 
