@@ -248,7 +248,11 @@ int main( int argc, char ** argv )
   //The writing part below does not work...
 
   hsize_t dim_init[2] = {1,10};
-  vector<double> vd(dim_init[1],0.);
+  vector<double> vd(dim_init[1]); //what will NAN/INF do??
+  for( unsigned i = 0 ; i < vd.size() ; ++i )
+    {
+      vd[i]=i;
+    }
   /*
     Knowing that 1 dimension is fixed can 
     really speed things up.
@@ -270,28 +274,49 @@ int main( int argc, char ** argv )
 	      PredType::NATIVE_DOUBLE);
 
 
-  for( unsigned i = 1 ; i <= 10 ; ++i )
+  for( unsigned i = 2 ; i <= 10 ; ++i )
     {
       hsize_t dim_i[2] = {i,10};
       hsize_t offset_i[2] = {i-1,0};
-      vd = vector<double>(dim_init[1],double(i));
+      vd = vector<double>(dim_init[1]);
+      for(unsigned j=0;j<vd.size();++j)
+	{
+	  vd[j]=i+j;
+	}
 
       dset.extend( dim_i );
       DataSpace fspace = dset.getSpace();
       DataSpace mspace( 2, dim_init );
-      cerr << dim_i[0] << ' ' << dim_i[1] << ' ' << offset_i[0] << ' ' << offset_i[1] << ' ' << fspace.getSimpleExtentNdims() << '\n';
-      cerr << vd.size() << '\n';
       fspace.selectHyperslab( H5S_SELECT_SET, dim_init , offset_i );
 
-      //dset.read( &vd[0], PredType::NATIVE_DOUBLE, memspace, dspace );
-      //dataset->write( &*foo2.begin(),PredType::NATIVE_INT,*memspace,*filespace);
-      
-      
       dset.write(&*vd.begin(),
 		 PredType::NATIVE_DOUBLE,
 		 mspace,fspace);
       
     }
     
+  file.close();
+  
+  //can we read a vertical slice?
+  file.openFile("testAdding.h5",H5F_ACC_RDONLY);
+
+  DataSet g4perms = file.openDataSet("Group4/perms");
+  DataSpace g4perms_space = g4perms.getSpace();
+
+  hsize_t hslab_dims[2] = {10,1}; //hyperslab dimensions
+  hsize_t hslab_offset[2] = {0,4}; //hslab offset starts from "upper left"
+  hsize_t slice_dims[2]={10,1};
+  g4perms_space.selectHyperslab(H5S_SELECT_SET, hslab_dims, hslab_offset );
+
+  vector<double> slice(10);
+
+  DataSpace slicespace( 2, slice_dims );
+
+  g4perms.read( &slice[0], PredType::NATIVE_DOUBLE, slicespace, g4perms_space );
+
+  for( unsigned i =0;i<slice.size() ;++i)
+    {
+      cout << slice[i] << '\n';
+    }
 }
 
