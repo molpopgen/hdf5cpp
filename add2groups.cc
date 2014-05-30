@@ -262,7 +262,7 @@ int main( int argc, char ** argv )
 	      PredType::NATIVE_DOUBLE);
 
 
-  for( unsigned i = 1 ; i < 2 ; ++i )
+  for( unsigned i = 1 ; i <= 10 ; ++i )
     {
       hsize_t dim_i[2] = {i,10};
       hsize_t dim_im1[2] = {i,10};
@@ -279,11 +279,11 @@ int main( int argc, char ** argv )
       //dset.read( &vd[0], PredType::NATIVE_DOUBLE, memspace, dspace );
       //dataset->write( &*foo2.begin(),PredType::NATIVE_INT,*memspace,*filespace);
       
-      
+      /*
       dset.write(&*vd.begin(),
 		 PredType::NATIVE_DOUBLE,
 		 mspace,fspace);
-      
+      */
     }
     
 }
