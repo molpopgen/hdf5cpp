@@ -265,8 +265,8 @@ int main( int argc, char ** argv )
   for( unsigned i = 1 ; i <= 10 ; ++i )
     {
       hsize_t dim_i[2] = {i,10};
-      hsize_t dim_im1[2] = {i,10};
-      hsize_t offset_i[2] = {i,0};
+      hsize_t dim_im1[2] = {i-1,10};
+      hsize_t offset_i[2] = {i-1,0};
       vd = vector<double>(dim_init[1],double(i));
 
       dset.extend( dim_i );
@@ -274,16 +274,16 @@ int main( int argc, char ** argv )
       DataSpace mspace( 2, dim_init );
       cerr << dim_i[0] << ' ' << dim_i[1] << ' ' << offset_i[0] << ' ' << offset_i[1] << ' ' << fspace.getSimpleExtentNdims() << '\n';
       cerr << vd.size() << '\n';
-      mspace.selectHyperslab( H5S_SELECT_SET, dim_i , offset_i );
+      fspace.selectHyperslab( H5S_SELECT_SET, dim_init , offset_i );
 
       //dset.read( &vd[0], PredType::NATIVE_DOUBLE, memspace, dspace );
       //dataset->write( &*foo2.begin(),PredType::NATIVE_INT,*memspace,*filespace);
       
-      /*
+      
       dset.write(&*vd.begin(),
 		 PredType::NATIVE_DOUBLE,
 		 mspace,fspace);
-      */
+      
     }
     
 }
